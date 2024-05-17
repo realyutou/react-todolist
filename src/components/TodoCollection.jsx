@@ -10,6 +10,9 @@ const TodoCollection = ({ todos, onToggleDone, onSave, onDelete, onChangeMode })
           onSave={({ id, title }) => {
             onSave?.({ id, title })
           }}
+          onDelete={({ id }) => {
+            onDelete?.({ id })
+          }}
           onToggleDone={(id) => {
             onToggleDone(id)
           }}

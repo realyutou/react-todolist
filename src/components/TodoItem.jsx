@@ -113,21 +113,39 @@ const TodoItem = ({ todo, onToggleDone, onSave, onDelete, onChangeMode }) => {
     }
   }
 
+  const handleDeleteClick = (e) => {
+    onDelete?.({ id: todo.id })
+  }
+
   return (
-    <StyledTaskItem className={clsx('', {done: todo.isDone, edit: todo.isEdit })}>
+    <StyledTaskItem
+      className={clsx('', { done: todo.isDone, edit: todo.isEdit })}
+    >
       <div className="task-item-checked">
-        <span className="icon icon-checked"
+        <span
+          className="icon icon-checked"
           onClick={() => {
-          onToggleDone?.(todo.id)
+            onToggleDone?.(todo.id);
           }}
         />
       </div>
-      <div className="task-item-body" onDoubleClick={() => onChangeMode?.({ id: todo.id, isEdit: true })}>
+      <div
+        className="task-item-body"
+        onDoubleClick={() => onChangeMode?.({ id: todo.id, isEdit: true })}
+      >
         <span className="task-item-body-text">{todo.title}</span>
-        <input ref={inputRef} className="task-item-body-input" defaultValue={todo.title} onKeyDown={handleKeyDown}/>
+        <input
+          ref={inputRef}
+          className="task-item-body-input"
+          defaultValue={todo.title}
+          onKeyDown={handleKeyDown}
+        />
       </div>
       <div className="task-item-action ">
-        <button className="btn-reset btn-destroy icon"></button>
+        <button
+          className="btn-reset btn-destroy icon"
+          onClick={handleDeleteClick}
+        ></button>
       </div>
     </StyledTaskItem>
   );
