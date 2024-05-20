@@ -1,71 +1,75 @@
 import { Footer, Header, TodoCollection, TodoInput } from 'components';
-import { useState } from 'react';
-
-const dummyTodos = [
-  {
-    title: 'Learn react-router',
-    isDone: true,
-    id: 1,
-  },
-  {
-    title: 'Learn to create custom hooks',
-    isDone: false,
-    id: 2,
-  },
-  {
-    title: 'Learn to use context',
-    isDone: true,
-    id: 3,
-  },
-  {
-    title: 'Learn to implement auth',
-    isDone: false,
-    id: 4,
-  },
-];
+import { useState, useEffect } from 'react';
+import { getTodos, createTodo } from '../api/todos';
 
 const TodoPage = () => {
   const [inputValue, setInputValue] = useState('')
-  const [todos, setTodos] = useState(dummyTodos)
+  const [todos, setTodos] = useState([])
 
   const handleChange = (value) => {
     setInputValue(value)
   }
 
-  const handleAddTodo = () => {
-    if (inputValue.length === 0) {
-      return
-    }
-
-    const newTodos = [
-      ...todos,
-      {
+  const handleAddTodo = async () => {
+    try {
+      if (inputValue.length === 0) {
+        return
+      }
+  
+      const newTodo = {
         title: inputValue,
         isDone: false,
-        id: todos.length + 1
       }
-    ]
-
-    setTodos(newTodos)
-    setInputValue('')
+  
+      // 發送 POST 請求
+      const data = await createTodo(newTodo)
+  
+      setTodos(prevTodos => {
+        return [
+          ...prevTodos,
+          {
+            id: data.id,
+            title: data.title,
+            isDone: data.isDone,
+            isEdit: false
+          }
+        ]
+      })
+      setInputValue('')
+    } catch (error) {
+      console.error(error)
+    }
   }
 
-  const handleKeyDown = () => {
-    if (inputValue.length === 0) {
-      return;
-    }
-
-    const newTodos = [
-      ...todos,
-      {
+  const handleKeyDown = async () => {
+    try {
+      if (inputValue.length === 0) {
+        return;
+      }
+  
+      const newTodo = {
         title: inputValue,
         isDone: false,
-        id: todos.length + 1,
-      },
-    ];
+      }
 
-    setTodos(newTodos);
-    setInputValue('');
+      // 發送 POST 請求
+      const data = await createTodo(newTodo)
+  
+      setTodos(prevTodos => {
+        return [
+          ...prevTodos,
+          {
+            id: data.id,
+            title: data.title,
+            isDone: data.isDone,
+            isEdit: false
+          }
+        ]
+      })
+      setInputValue('');
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   const handleToggleDone = (id) => {
@@ -110,6 +114,23 @@ const TodoPage = () => {
   const handleDelete = ({ id }) => {
     setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id))
   }
+  // 發送 GET 請求
+  useEffect(() => {
+    const getTodosAsync = async () => {
+      try {
+        const todos = await getTodos()
+
+        setTodos(todos.map(todo => ({
+          ...todo,
+          isEdit: false
+        })))
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    getTodosAsync()
+  }, [])
 
   return (
     <div>
