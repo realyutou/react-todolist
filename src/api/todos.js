@@ -11,6 +11,7 @@ export const getTodos = async () => {
     console.error('[Get Todos failed]: ', error)
   }
 }
+
 export const createTodo = async (payload) => {
   try {
     const { title, isDone } = payload
@@ -24,5 +25,28 @@ export const createTodo = async (payload) => {
     console.error('[Create Todo failed]: ', error)
   }
 }
-export const patchTodo = () => {}
-export const deleteTodo = () => {}
+
+export const patchTodo = async (payload) => {
+  try {
+    const { id, title, isDone } = payload
+
+    const res = await axios.patch(`${baseUrl}/todos/${id}`, {
+      title,
+      isDone
+    })
+
+    return res.data
+  } catch (error) {
+    console.error('[Patch Todo failed]: ', error)
+  }
+}
+
+export const deleteTodo = async (id) => {
+  try {
+    const res = await axios.delete(`${baseUrl}/todos/${id}`)
+
+    return res.data
+  } catch (error) {
+    console.error('[Delete Todo failed]: ', error)
+  }
+}
