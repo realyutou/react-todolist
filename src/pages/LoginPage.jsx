@@ -8,10 +8,51 @@ import { ACLogoIcon } from 'assets/images';
 import { AuthInput } from 'components';
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { login } from '../api/auth'
+import Swal from 'sweetalert2'
 
 const LoginPage = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+
+  const handleClick = async () => {
+    if (username.length === 0) {
+      return
+    }
+    if (password.length === 0) {
+      return
+    }
+
+    try {
+      const { success, authToken } = await login({
+        username,
+        password
+      })
+
+      // 登入成功
+      if (success) {
+        localStorage.setItem('authToken', authToken)
+        Swal.fire({
+          title: '登入成功！',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1000,
+          position: 'top'
+        })
+        return
+      }
+      // 登入失敗
+      Swal.fire({
+        title: '登入失敗！',
+        icon: 'error',
+        showConfirmButton: false,
+        timer: 1000,
+        position: 'top'
+      });
+    } catch (error) {
+      console.error(error)
+    }
+  }
   return (
     <AuthContainer>
       <div>
@@ -26,7 +67,7 @@ const LoginPage = () => {
       <AuthInputContainer>
         <AuthInput type="password" label="密碼" placeholder="請輸入密碼" value={password} onChange={(passwordInputValue) => setPassword(passwordInputValue)}/>
       </AuthInputContainer>
-      <AuthButton>登入</AuthButton>
+      <AuthButton onClick={handleClick}>登入</AuthButton>
       <Link to="/signup">
         <AuthLinkText>註冊</AuthLinkText>
       </Link>
