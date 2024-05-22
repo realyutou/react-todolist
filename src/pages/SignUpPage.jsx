@@ -8,7 +8,7 @@ import { ACLogoIcon } from 'assets/images';
 import { AuthInput } from 'components';
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { register, checkPermission } from '../api/auth';
+import { useAuth } from '../contexts/AuthContext'
 import Swal from 'sweetalert2'
 
 const SignUpPage = () => {
@@ -16,6 +16,7 @@ const SignUpPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
+  const { register, isAuthenticated } = useAuth()
 
   const handleClick = async () => {
     if (username.length === 0) {
@@ -28,52 +29,37 @@ const SignUpPage = () => {
       return
     }
 
-    try {
-      const { success, authToken } = await register({
-        username,
-        email,
-        password
-      })
+    const success = await register({
+      username,
+      email,
+      password
+    })
 
-      if (success) {
-        localStorage.setItem('authToken', authToken)
-        Swal.fire({
-          title: '註冊成功！',
-          icon: 'success',
-          showConfirmButton: false,
-          timer: 1000,
-          position: 'top'
-        })
-        navigate('/todos')
-        return
-      }
-
+    if (success) {
       Swal.fire({
-        title: '註冊失敗！',
-        icon: 'error',
+        title: '註冊成功！',
+        icon: 'success',
         showConfirmButton: false,
         timer: 1000,
         position: 'top'
       })
-    } catch (error) {
-      console.error(error)
+      return
     }
+
+    Swal.fire({
+      title: '註冊失敗！',
+      icon: 'error',
+      showConfirmButton: false,
+      timer: 1000,
+      position: 'top'
+    })
   }
 
   useEffect(() => {
-    const checkTokenIsValid = async () => {
-      const authToken = localStorage.getItem('authToken')
-      if (!authToken) {
-        return
-      }
-      const result = await checkPermission(authToken)
-      if (result) {
-        navigate('/todos')
-      }
+    if (isAuthenticated) {
+      navigate('/todos')
     }
-
-    checkTokenIsValid()
-  }, [navigate])
+  }, [navigate, isAuthenticated])
 
   return (
     <AuthContainer>

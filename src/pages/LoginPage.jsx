@@ -8,13 +8,14 @@ import { ACLogoIcon } from 'assets/images';
 import { AuthInput } from 'components';
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { login, checkPermission } from '../api/auth'
+import { useAuth } from '../contexts/AuthContext'
 import Swal from 'sweetalert2'
 
 const LoginPage = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
+  const { login, isAuthenticated } = useAuth()
 
   const handleClick = async () => {
     if (username.length === 0) {
@@ -24,53 +25,37 @@ const LoginPage = () => {
       return
     }
 
-    try {
-      const { success, authToken } = await login({
-        username,
-        password
-      })
+    const success = await login({
+      username,
+      password
+    })
 
-      // 登入成功
-      if (success) {
-        localStorage.setItem('authToken', authToken)
-        Swal.fire({
-          title: '登入成功！',
-          icon: 'success',
-          showConfirmButton: false,
-          timer: 1000,
-          position: 'top'
-        })
-        navigate('/todos')
-        return
-      }
-      // 登入失敗
+    // 登入成功
+    if (success) {
       Swal.fire({
-        title: '登入失敗！',
-        icon: 'error',
+        title: '登入成功！',
+        icon: 'success',
         showConfirmButton: false,
         timer: 1000,
         position: 'top'
-      });
-    } catch (error) {
-      console.error(error)
+      })
+      return
     }
+    // 登入失敗
+    Swal.fire({
+      title: '登入失敗！',
+      icon: 'error',
+      showConfirmButton: false,
+      timer: 1000,
+      position: 'top'
+    })
   }
 
   useEffect(() => {
-    const checkTokenIsValid = async () => {
-      const authToken = localStorage.getItem('authToken')
-      if (!authToken) {
-        return
-      }
-
-      const result = await checkPermission(authToken)
-      if (result) {
-        navigate('/todos')
-      }
+    if (isAuthenticated) {
+      navigate('/todos')
     }
-
-    checkTokenIsValid()
-  }, [navigate])
+  }, [navigate, isAuthenticated])
   return (
     <AuthContainer>
       <div>
